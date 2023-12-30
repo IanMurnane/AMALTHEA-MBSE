@@ -6,7 +6,7 @@ import org.eclipse.app4mc.amalthea.model.Amalthea;
 import org.eclipse.app4mc.amalthea.model.AmaltheaFactory;
 import org.eclipse.app4mc.amalthea.model.io.AmaltheaWriter;
 
-import app4mc.project.tool.java.Modules.Template;
+// import app4mc.project.tool.java.Modules.Template;
 
 public class Main {
 	public static void main(String[] args) {
@@ -17,7 +17,7 @@ public class Main {
 		Amalthea model = AmaltheaFactory.eINSTANCE.createAmalthea();
 		
 		// add your modules here
-		Template.run(model);
+		// Template.run(model);
 
 		// output the model to a file
 		if (AmaltheaWriter.writeToFile(model, outputFile)) {
