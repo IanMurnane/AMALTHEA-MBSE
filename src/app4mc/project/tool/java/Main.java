@@ -6,26 +6,29 @@ import org.eclipse.app4mc.amalthea.model.Amalthea;
 import org.eclipse.app4mc.amalthea.model.AmaltheaFactory;
 import org.eclipse.app4mc.amalthea.model.io.AmaltheaWriter;
 
-// import app4mc.project.tool.java.Modules.Template;
+import app4mc.project.tool.java.Modules.ProjectSetup;
+import app4mc.project.tool.java.Modules.InputVariables;
 
 public class Main {
 	public static void main(String[] args) {
-		final File outputFile = new File("model-output/project.amxmi");
+		final File outputFile = new File("model-output/projectOutput.amxmi");
 
 		System.out.println("Creating new project");
-				
+
+		final AmaltheaFactory factory = AmaltheaFactory.eINSTANCE;
 		Amalthea model = AmaltheaFactory.eINSTANCE.createAmalthea();
-		
-		// add your modules here
-		// Template.run(model);
+
+		// add modules here
+		ProjectSetup.run(model, factory);
+		InputVariables.run(model, factory);
 
 		// output the model to a file
 		if (AmaltheaWriter.writeToFile(model, outputFile)) {
-			System.out.println("Wrote file: " + outputFile.getAbsolutePath());
+			System.out.println("Wrote file: " + outputFile.getPath());
 		} else {
 			System.err.println("Error: Model not saved!");
 		}
 
-		System.out.println("Finished");
+		System.out.println("Done.");
 	}
 }
