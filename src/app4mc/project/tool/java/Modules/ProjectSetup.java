@@ -2,6 +2,7 @@ package app4mc.project.tool.java.Modules;
 
 import org.eclipse.app4mc.amalthea.model.Amalthea;
 import org.eclipse.app4mc.amalthea.model.AmaltheaFactory;
+import org.eclipse.app4mc.amalthea.model.HWModel;
 import org.eclipse.app4mc.amalthea.model.SWModel;
 
 public class ProjectSetup {
@@ -11,5 +12,8 @@ public class ProjectSetup {
 		
 		SWModel sw = factory.createSWModel();
 		model.setSwModel(sw);
+		
+		HWModel hw = factory.createHWModel();
+		model.setHwModel(hw);
 	}
 }

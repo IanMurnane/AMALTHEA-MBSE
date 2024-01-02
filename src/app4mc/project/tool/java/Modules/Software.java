@@ -10,7 +10,7 @@ import org.eclipse.app4mc.amalthea.model.DataSize;
 import org.eclipse.app4mc.amalthea.model.DataSizeUnit;
 import org.eclipse.app4mc.amalthea.model.Label;
 
-public class InputVariables {
+public class Software {
 	public static void run(Amalthea model, AmaltheaFactory factory) {
 		// Label - <size in bits>
 		Map<String, Integer> labelSizeMap = new HashMap<>();
