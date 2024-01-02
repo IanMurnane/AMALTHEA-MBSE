@@ -1,21 +1,38 @@
 package app4mc.project.tool.java.Modules;
 
+import java.math.BigInteger;
+
 import org.eclipse.app4mc.amalthea.model.Amalthea;
 import org.eclipse.app4mc.amalthea.model.AmaltheaFactory;
+import org.eclipse.app4mc.amalthea.model.DataSize;
+import org.eclipse.app4mc.amalthea.model.DataSizeUnit;
+import org.eclipse.app4mc.amalthea.model.MemoryDefinition;
 import org.eclipse.app4mc.amalthea.model.ProcessingUnitDefinition;
 
 public class Hardware {
 	public static void run(Amalthea model, AmaltheaFactory factory) {
-		ProcessingUnitDefinition psu = factory.createProcessingUnitDefinition();
-		psu.setName("Infineon TriCore CPU");
-		model.getHwModel().getDefinitions().add(psu);
+		createProcessingUnitDefinition(model, factory, "Infineon TriCore CPU");
+		createProcessingUnitDefinition(model, factory, "Nvidia Pascal GPU");
+		createProcessingUnitDefinition(model, factory, "Nvidia Parker SoC");
 
-		ProcessingUnitDefinition gpu = factory.createProcessingUnitDefinition();
-		gpu.setName("Nvidia Pascal GPU");
-		model.getHwModel().getDefinitions().add(gpu);
+		createMemoryDefinition(model, factory, "RAM12", 12);
+		createMemoryDefinition(model, factory, "RAM16", 16);
+		createMemoryDefinition(model, factory, "RAM32", 32);
+	}
 
-		ProcessingUnitDefinition soc = factory.createProcessingUnitDefinition();
-		soc.setName("Nvidia Parker SoC");
-		model.getHwModel().getDefinitions().add(soc);
+	private static void createProcessingUnitDefinition(Amalthea model, AmaltheaFactory factory, String name) {
+		ProcessingUnitDefinition processingUnitDefinition = factory.createProcessingUnitDefinition();
+		processingUnitDefinition.setName(name);
+		model.getHwModel().getDefinitions().add(processingUnitDefinition);
+	}
+
+	private static void createMemoryDefinition(Amalthea model, AmaltheaFactory factory, String name, int size) {
+		MemoryDefinition ram = factory.createMemoryDefinition();
+		DataSize dataSize = factory.createDataSize();
+		dataSize.setUnit(DataSizeUnit.GB);
+		dataSize.setValue(BigInteger.valueOf(size));
+		ram.setSize(dataSize);
+		ram.setName(name);
+		model.getHwModel().getDefinitions().add(ram);
 	}
 }
