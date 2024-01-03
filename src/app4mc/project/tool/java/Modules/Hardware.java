@@ -1,6 +1,8 @@
 package app4mc.project.tool.java.Modules;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.app4mc.amalthea.model.Amalthea;
 import org.eclipse.app4mc.amalthea.model.AmaltheaFactory;
@@ -15,60 +17,77 @@ import org.eclipse.app4mc.amalthea.model.Memory;
 import org.eclipse.app4mc.amalthea.model.MemoryDefinition;
 import org.eclipse.app4mc.amalthea.model.MemoryType;
 import org.eclipse.app4mc.amalthea.model.PortType;
+import org.eclipse.app4mc.amalthea.model.ProcessingUnit;
 import org.eclipse.app4mc.amalthea.model.ProcessingUnitDefinition;
 import org.eclipse.app4mc.amalthea.model.PuType;
 import org.eclipse.app4mc.amalthea.model.StructureType;
 
 public class Hardware {
 	public static void run(Amalthea model, AmaltheaFactory factory) {
-		createProcessingUnitDefinition(model, factory, "Infineon TriCore CPU", PuType.CPU);
-		createProcessingUnitDefinition(model, factory, "Nvidia Pascal GPU", PuType.GPU);
-		createProcessingUnitDefinition(model, factory, "Nvidia Parker SoC", PuType.CPU);
+		FrequencyDomain freq1_5 = addFrequencyDomain(model, factory, "1.5 GHz", 1.5);
+		FrequencyDomain freq2_0 = addFrequencyDomain(model, factory, "2.0 GHz", 2.0);
 
-		Memory ram12 = createMemoryDefinition(model, factory, "12GB GDDR5 RAM", 12, 256);
-		Memory ram16 = createMemoryDefinition(model, factory, "16GB GDDR5 RAM", 16, 32);
-		Memory ram32 = createMemoryDefinition(model, factory, "32GB DDR3 RAM", 32, 64);
+		ProcessingUnitDefinition puInfineonTricore = addProcessingUnitDefinition(model, factory, "Infineon TriCore CPU", PuType.CPU);
+		ProcessingUnitDefinition puNvidiaPascal = addProcessingUnitDefinition(model, factory, "Nvidia Pascal GPU", PuType.GPU);
+		ProcessingUnitDefinition puNvidiaParker = addProcessingUnitDefinition(model, factory, "Nvidia Parker SoC", PuType.CPU);
 
-		createFrequencyDomain(model, factory, "1.5 GHz", 1.5);
-		createFrequencyDomain(model, factory, "2.0 GHz", 2);
-		
-		// add hardware unit
-		HwStructure hwStructure = factory.createHwStructure();
-		hwStructure.setName("Tesla HW2.5");
-		hwStructure.setStructureType(StructureType.ECU);
-		
-		// - add nvidia parker soc
-		HwStructure hwStructurePU1 = factory.createHwStructure();
-		hwStructurePU1.setName("Nvidia Parker SoC");
-		hwStructurePU1.setStructureType(StructureType.SO_C);
-		hwStructurePU1.getModules().add(ram32);
-		hwStructure.getStructures().add(hwStructurePU1);
+		Memory ram12 = addMemoryDefinition(model, factory, "12GB GDDR5 RAM", 12, 256);
+		Memory ram16 = addMemoryDefinition(model, factory, "16GB GDDR5 RAM", 16, 32);
+		Memory ram32 = addMemoryDefinition(model, factory, "32GB DDR3 RAM", 32, 64);
 
-		// - add nvidia pascal gpu 1
-		HwStructure hwStructurePU2 = factory.createHwStructure();
-		hwStructurePU2.setName("Nvidia Pascal GPU 1");
-		hwStructurePU2.setStructureType(StructureType.CLUSTER);
-		hwStructurePU2.getModules().add(ram12);
-		hwStructure.getStructures().add(hwStructurePU2);
-
-		// - add infineon tricore cpu
-		HwStructure hwStructurePU3 = factory.createHwStructure();
-		hwStructurePU3.setName("Infineon TriCore CPU");
-		hwStructurePU3.setStructureType(StructureType.MICROCONTROLLER);
-		hwStructurePU3.getModules().add(ram16);
-		hwStructure.getStructures().add(hwStructurePU3);
-		
-		model.getHwModel().getStructures().add(hwStructure);
+		// ECU - Tesla HW2.5 AP
+		HwStructure teslaHW25 = addHwStructure(model, factory, "Tesla HW2.5", StructureType.ECU);
+		List<ProcessingUnit> coresNvidiaParker = createCores(factory, puNvidiaParker, freq2_0, 256, 64);
+		attachHardware(factory, teslaHW25, "Nvidia Parker SoC", StructureType.SO_C, ram32, coresNvidiaParker);
+		List<ProcessingUnit> coresNvidiaPascal = createCores(factory, puNvidiaPascal, null, 256, 192);
+		attachHardware(factory, teslaHW25, "Nvidia Pascal GPU 1", StructureType.CLUSTER, ram12, coresNvidiaPascal);
+		List<ProcessingUnit> coresInfineonTricore = createCores(factory, puInfineonTricore, freq1_5, 32, 32);
+		attachHardware(factory, teslaHW25, "Infineon TriCore CPU", StructureType.MICROCONTROLLER, ram16, coresInfineonTricore);
 	}
 
-	private static void createProcessingUnitDefinition(Amalthea model, AmaltheaFactory factory, String name, PuType puType) {
+	private static HwStructure addHwStructure(Amalthea model, AmaltheaFactory factory, String name, StructureType structureType) {
+		HwStructure hwStructure = factory.createHwStructure();
+		hwStructure.setName(name);
+		hwStructure.setStructureType(structureType);
+		model.getHwModel().getStructures().add(hwStructure);
+		return hwStructure;
+	}
+
+	private static void attachHardware(AmaltheaFactory factory, HwStructure parentHwStructure, String name, StructureType structureType, Memory ram, List<ProcessingUnit> cores) {
+		HwStructure hwStructure = factory.createHwStructure();
+		hwStructure.setName(name);
+		hwStructure.setStructureType(structureType);
+		hwStructure.getModules().add(ram);
+		hwStructure.getModules().addAll(cores);
+		parentHwStructure.getStructures().add(hwStructure);
+	}
+
+	private static ProcessingUnitDefinition addProcessingUnitDefinition(Amalthea model, AmaltheaFactory factory, String name, PuType puType) {
 		ProcessingUnitDefinition processingUnitDefinition = factory.createProcessingUnitDefinition();
 		processingUnitDefinition.setName(name);
 		processingUnitDefinition.setPuType(puType);
 		model.getHwModel().getDefinitions().add(processingUnitDefinition);
+		return processingUnitDefinition;
 	}
 
-	private static Memory createMemoryDefinition(Amalthea model, AmaltheaFactory factory, String name, int size, int bitWidth) {
+	private static List<ProcessingUnit> createCores(AmaltheaFactory factory, ProcessingUnitDefinition pud, FrequencyDomain frequencyDomain, int bitWidth, int quantity) {
+		List<ProcessingUnit> cores = new ArrayList<>();
+		for (int i=0; i < quantity; i++) {
+			ProcessingUnit psu = factory.createProcessingUnit();
+			psu.setDefinition(pud);
+			psu.setName("Core_" + i);
+			psu.setFrequencyDomain(frequencyDomain);
+			HwPort hwPort = factory.createHwPort();
+			hwPort.setName("port");
+			hwPort.setPortType(PortType.INITIATOR);
+			hwPort.setBitWidth(bitWidth);
+			psu.getPorts().add(hwPort);
+			cores.add(psu);
+		}
+		return cores;
+	}
+
+	private static Memory addMemoryDefinition(Amalthea model, AmaltheaFactory factory, String name, int size, int bitWidth) {
 		MemoryDefinition ram = factory.createMemoryDefinition();
 		DataSize dataSize = factory.createDataSize();
 		dataSize.setUnit(DataSizeUnit.GB);
@@ -81,6 +100,7 @@ public class Hardware {
 		// add a port and return as Memory
 		Memory mem = factory.createMemory();
 		mem.setDefinition(ram);
+		mem.setName("RAM");
 		HwPort hwPort = factory.createHwPort();
 		hwPort.setName("port");
 		hwPort.setPortType(PortType.RESPONDER);
@@ -89,7 +109,7 @@ public class Hardware {
 		return mem;
 	}
 
-	private static void createFrequencyDomain(Amalthea model, AmaltheaFactory factory, String name, double frequency) {
+	private static FrequencyDomain addFrequencyDomain(Amalthea model, AmaltheaFactory factory, String name, double frequency) {
 		FrequencyDomain frequencyDomain = factory.createFrequencyDomain();
 		Frequency freq = factory.createFrequency();
 		freq.setValue(frequency);
@@ -97,5 +117,6 @@ public class Hardware {
 		frequencyDomain.setDefaultValue(freq);
 		frequencyDomain.setName(name);
 		model.getHwModel().getDomains().add(frequencyDomain);
+		return frequencyDomain;
 	}
 }
