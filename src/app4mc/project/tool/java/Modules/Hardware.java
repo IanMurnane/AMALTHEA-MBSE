@@ -16,13 +16,14 @@ import org.eclipse.app4mc.amalthea.model.MemoryDefinition;
 import org.eclipse.app4mc.amalthea.model.MemoryType;
 import org.eclipse.app4mc.amalthea.model.PortType;
 import org.eclipse.app4mc.amalthea.model.ProcessingUnitDefinition;
+import org.eclipse.app4mc.amalthea.model.PuType;
 import org.eclipse.app4mc.amalthea.model.StructureType;
 
 public class Hardware {
 	public static void run(Amalthea model, AmaltheaFactory factory) {
-		createProcessingUnitDefinition(model, factory, "Infineon TriCore CPU");
-		createProcessingUnitDefinition(model, factory, "Nvidia Pascal GPU");
-		createProcessingUnitDefinition(model, factory, "Nvidia Parker SoC");
+		createProcessingUnitDefinition(model, factory, "Infineon TriCore CPU", PuType.CPU);
+		createProcessingUnitDefinition(model, factory, "Nvidia Pascal GPU", PuType.GPU);
+		createProcessingUnitDefinition(model, factory, "Nvidia Parker SoC", PuType.CPU);
 
 		Memory ram12 = createMemoryDefinition(model, factory, "12GB GDDR5 RAM", 12, 256);
 		Memory ram16 = createMemoryDefinition(model, factory, "16GB GDDR5 RAM", 16, 32);
@@ -60,9 +61,10 @@ public class Hardware {
 		model.getHwModel().getStructures().add(hwStructure);
 	}
 
-	private static void createProcessingUnitDefinition(Amalthea model, AmaltheaFactory factory, String name) {
+	private static void createProcessingUnitDefinition(Amalthea model, AmaltheaFactory factory, String name, PuType puType) {
 		ProcessingUnitDefinition processingUnitDefinition = factory.createProcessingUnitDefinition();
 		processingUnitDefinition.setName(name);
+		processingUnitDefinition.setPuType(puType);
 		model.getHwModel().getDefinitions().add(processingUnitDefinition);
 	}
 
