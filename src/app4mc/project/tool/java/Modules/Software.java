@@ -15,6 +15,8 @@ import org.eclipse.app4mc.amalthea.model.DataSize;
 import org.eclipse.app4mc.amalthea.model.DataSizeUnit;
 import org.eclipse.app4mc.amalthea.model.Group;
 import org.eclipse.app4mc.amalthea.model.Label;
+import org.eclipse.app4mc.amalthea.model.LabelAccess;
+import org.eclipse.app4mc.amalthea.model.LabelAccessEnum;
 import org.eclipse.app4mc.amalthea.model.ProcessingUnit;
 import org.eclipse.app4mc.amalthea.model.Task;
 import org.eclipse.app4mc.amalthea.model.Runnable;
@@ -57,6 +59,26 @@ public class Software {
 		labelSizeMap.put("UltrasonicProcessed", 32);
 		labelSizeMap.put("IMUProcessed", 32);
 		labelSizeMap.put("EnvironmentMap", 32);
+		
+		labelSizeMap.put("Gyroscope", 16);
+		labelSizeMap.put("Accelerometer", 16);
+		labelSizeMap.put("Magnetometer", 16);
+		
+		labelSizeMap.put("CollisionDetectiontOutput", 8);
+		labelSizeMap.put("TargetVehiclDetectOutput", 8);
+		labelSizeMap.put("DistanceCalcOutput", 16);
+		labelSizeMap.put("LaneDetectionOutput", 8);
+		labelSizeMap.put("ObjectDetectionOutput", 8);
+		
+		labelSizeMap.put("AudioWarning", 2);
+		labelSizeMap.put("HapticFeedbackWarning", 2);
+		labelSizeMap.put("DashboardDisplayWarning", 8);
+		labelSizeMap.put("EmergencyBrake", 8);
+		labelSizeMap.put("Throttle", 16);
+		labelSizeMap.put("Steering", 16);
+		labelSizeMap.put("SideMirrorLights", 2);
+		
+		
 
 		
 		addLabels(model, factory, labelSizeMap);
@@ -74,10 +96,13 @@ public class Software {
 				"FrontCameraA", "FrontCameraB", "FrontCameraC", "RRearwardLookingSideCamera", "LRearwardLookingSideCamera", "RForwardLookingSideCamera", 
 				"LForwardLookingSideCamera", "RearviewCamera", "FrontUltrasonicA", "FrontUltrasonicB", "FrontUltrasonicC", "FrontUltrasonicD",
 				"FrontUltrasonicE", "FrontUltrasonicF", "RearUltrasonicA", "RearUltrasonicB", "RearUltrasonicC", "RearUltrasonicD", "RearUltrasonicE",
-				"RearUltrasonicF", "RadarProcessed", "LiDARProcessed3DMap", "CameraProcessed", "UltrasonicProcessed", "IMUProcessed", "EnvironmentMap");
+				"RearUltrasonicF", "RadarProcessed", "LiDARProcessed3DMap", "CameraProcessed", "UltrasonicProcessed", "IMUProcessed", "EnvironmentMap",
+				"Gyroscope", "Accelerometer", "Magnetometer", "CollisionDetectiontOutput", "TargetVehiclDetectOutput", "DistanceCalcOutput", "LaneDetectionOutput", 
+				"ObjectDetectionOutput", "AudioWarning", "HapticFeedbackWarning", "DashboardDisplayWarning", "EmergencyBrake", "Throttle", "Steering", 
+				"SideMirrorLights");
 		
 		
-		addRunnables(model,factory);
+		addRunnables(model,factory,labelsOrdered);
 		addTasks(model, factory, tasks);
 	}
 	
@@ -109,11 +134,10 @@ public class Software {
 			Group callSeq = factory.createGroup();
 			callSeq.setName("CallSequence");
 			model.getSwModel().getTasks().get(tasks.indexOf(t)).getActivityGraph().getItems().add(callSeq);
-			//List<Runnable>  runnables = model.getSwModel().getRunnables();
-			//model.getSwModel().getRunnables().add(runnables.get(0));
+
 		}
 	}
-	private static void addRunnables(Amalthea model, AmaltheaFactory factory) {
+	private static void addRunnables(Amalthea model, AmaltheaFactory factory, List<String> labelsOrdered) {
 		
 		List<String> runnables =new ArrayList<>();
 		runnables.add("RadarDataProcessing");
@@ -121,21 +145,16 @@ public class Software {
 		runnables.add("CameraImgProcessing");
 		runnables.add("UltrasonicDataProcessing");
 		runnables.add("InertialMeasurementUnit");
-		runnables.add("SensorFusion");
+		runnables.add("SensorFusionAlgorithm");
 		
 		runnables.add("CollisonDetection");
-		runnables.add("CDDecisonMaking");
-		
-		runnables.add("AEBDecisionMaking");
-		
+	
 		runnables.add("TargetVehicleDetection");
 		runnables.add("DistanceCalculation");
 		
 		runnables.add("LaneDetection");
-		runnables.add("LDDecisionMaking");
 		
 		runnables.add("ObjectDetection");
-		runnables.add("BSDecisionMaking");
 		
 		runnables.add("FCWarningTrigger");
 		runnables.add("EmergencyBrakingControl");
@@ -149,11 +168,74 @@ public class Software {
 			ActivityGraph A = factory.createActivityGraph();
 			runnable.setActivityGraph(A);
 			model.getSwModel().getRunnables().add(runnable);
+			
 		}
+		
+		//model.getSwModel().getRunnables().get(0);
+		addLabelsToRunnables(model.getSwModel().getRunnables().get(0),model,factory,0,4,26,26,labelsOrdered);
+		addLabelsToRunnables(model.getSwModel().getRunnables().get(1),model,factory,5,5,27,27,labelsOrdered);
+		addLabelsToRunnables(model.getSwModel().getRunnables().get(2),model,factory,6,13,28,28,labelsOrdered);
+		addLabelsToRunnables(model.getSwModel().getRunnables().get(3),model,factory,14,25,29,29,labelsOrdered);
+		addLabelsToRunnables(model.getSwModel().getRunnables().get(4),model,factory,32,34,30,30,labelsOrdered);
+		addLabelsToRunnables(model.getSwModel().getRunnables().get(5),model,factory,26,30,31,31,labelsOrdered);
+		
+		addLabelsToRunnables(model.getSwModel().getRunnables().get(6),model,factory,31,31,35,35,labelsOrdered);
+		addLabelsToRunnables(model.getSwModel().getRunnables().get(7),model,factory,31,31,36,36,labelsOrdered);
+		addLabelsToRunnables(model.getSwModel().getRunnables().get(8),model,factory,31,31,36,36,labelsOrdered);
+		addLabelsToRunnables(model.getSwModel().getRunnables().get(8),model,factory,36,36,37,37,labelsOrdered);
+		addLabelsToRunnables(model.getSwModel().getRunnables().get(9),model,factory,31,31,38,38,labelsOrdered);
+		addLabelsToRunnables(model.getSwModel().getRunnables().get(10),model,factory,31,31,39,39,labelsOrdered);
+		
+		addLabelsToRunnables(model.getSwModel().getRunnables().get(11),model,factory,35,35,40,42,labelsOrdered);
+		addLabelsToRunnables(model.getSwModel().getRunnables().get(12),model,factory,35,35,40,43,labelsOrdered);
+		addLabelsToRunnables(model.getSwModel().getRunnables().get(13),model,factory,36,37,40,40,labelsOrdered);
+		addLabelsToRunnables(model.getSwModel().getRunnables().get(13),model,factory,-100,-100,44,44,labelsOrdered);
+		addLabelsToRunnables(model.getSwModel().getRunnables().get(14),model,factory,38,38,40,42,labelsOrdered);
+		addLabelsToRunnables(model.getSwModel().getRunnables().get(14),model,factory,-100,-100,45,45,labelsOrdered);
+		addLabelsToRunnables(model.getSwModel().getRunnables().get(15),model,factory,39,39,40,40,labelsOrdered);
+		addLabelsToRunnables(model.getSwModel().getRunnables().get(15),model,factory,-100,-100,46,46,labelsOrdered);
+		
 	
-		System.out.println(model.getSwModel().getLabels().get(0).toString());
+	}
+
+	private static void addLabelsToRunnables(Runnable runnable, Amalthea model, AmaltheaFactory factory, int startIn, int endIn, int startOut, int endOut, List<String> labelsOrdered) {
+
+		int counter; 
+		if(startIn != -100) {
+			for(int i=startIn; i<=endIn; i++) {
+				LabelAccess l = factory.createLabelAccess();
+				counter = 0;
+				for (Label label : model.getSwModel().getLabels()) {
+		            if (label.getName().equals(labelsOrdered.get(i))) {
+		                //System.out.println("Label Name: " + label.getName());
+		                break; 
+		            }
+		            counter ++;
+				}
+		            
+				l.setData(model.getSwModel().getLabels().get(counter));
+				l.setAccess(LabelAccessEnum.READ);
+				System.out.println(model.getSwModel().getLabels().get(counter).getName());
+				runnable.getActivityGraph().getItems().add(l);
+				
+			}
+		}
 		
-		
-		
+			for(int i=startOut; i<=endOut; i++) {
+				LabelAccess l = factory.createLabelAccess();
+				counter = 0;
+				for (Label label : model.getSwModel().getLabels()) {
+		            if (label.getName().equals(labelsOrdered.get(i))) {
+		                break; 
+		            }
+		            counter ++;
+				}
+		            
+				l.setData(model.getSwModel().getLabels().get(counter));
+				l.setAccess(LabelAccessEnum.WRITE);
+				System.out.println(model.getSwModel().getLabels().get(counter).getName());
+				runnable.getActivityGraph().getItems().add(l);
+				
+			}
 	}
 }
