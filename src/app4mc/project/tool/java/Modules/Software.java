@@ -20,6 +20,7 @@ import org.eclipse.app4mc.amalthea.model.LabelAccessEnum;
 import org.eclipse.app4mc.amalthea.model.ProcessingUnit;
 import org.eclipse.app4mc.amalthea.model.Task;
 import org.eclipse.app4mc.amalthea.model.Runnable;
+import org.eclipse.app4mc.amalthea.model.RunnableCall;
 import org.eclipse.app4mc.amalthea.model.RunnableSequencingConstraint;
 
 public class Software {
@@ -136,6 +137,30 @@ public class Software {
 			model.getSwModel().getTasks().get(tasks.indexOf(t)).getActivityGraph().getItems().add(callSeq);
 
 		}
+		
+		addRunnableCall(model,factory,0,0);
+		addRunnableCall(model,factory,1,0);
+		addRunnableCall(model,factory,2,0);
+		addRunnableCall(model,factory,3,0);
+		addRunnableCall(model,factory,4,0);
+		addRunnableCall(model,factory,5,0);
+		
+		addRunnableCall(model,factory,6,1);
+		addRunnableCall(model,factory,6,2);
+		
+		addRunnableCall(model,factory,7,3);
+		addRunnableCall(model,factory,8,3);
+		
+		addRunnableCall(model,factory,9,4);
+		addRunnableCall(model,factory,10,5);
+		
+		addRunnableCall(model,factory,11,6);
+		addRunnableCall(model,factory,12,6);
+		addRunnableCall(model,factory,13,6);
+		addRunnableCall(model,factory,14,6);
+		addRunnableCall(model,factory,15,6);
+		
+	
 	}
 	private static void addRunnables(Amalthea model, AmaltheaFactory factory, List<String> labelsOrdered) {
 		
@@ -207,7 +232,6 @@ public class Software {
 				counter = 0;
 				for (Label label : model.getSwModel().getLabels()) {
 		            if (label.getName().equals(labelsOrdered.get(i))) {
-		                //System.out.println("Label Name: " + label.getName());
 		                break; 
 		            }
 		            counter ++;
@@ -215,7 +239,6 @@ public class Software {
 		            
 				l.setData(model.getSwModel().getLabels().get(counter));
 				l.setAccess(LabelAccessEnum.READ);
-				System.out.println(model.getSwModel().getLabels().get(counter).getName());
 				runnable.getActivityGraph().getItems().add(l);
 				
 			}
@@ -233,9 +256,15 @@ public class Software {
 		            
 				l.setData(model.getSwModel().getLabels().get(counter));
 				l.setAccess(LabelAccessEnum.WRITE);
-				System.out.println(model.getSwModel().getLabels().get(counter).getName());
 				runnable.getActivityGraph().getItems().add(l);
 				
 			}
+	}
+	private static void addRunnableCall(Amalthea model, AmaltheaFactory factory, int rIndex, int tIndex) {
+		
+		RunnableCall rc = factory.createRunnableCall();
+		rc.setRunnable(model.getSwModel().getRunnables().get(rIndex));
+		
+		model.getSwModel().getTasks().get(tIndex).getActivityGraph().getItems().add(rc);
 	}
 }
