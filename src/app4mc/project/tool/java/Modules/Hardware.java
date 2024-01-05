@@ -11,6 +11,8 @@ import org.eclipse.app4mc.amalthea.model.DataSizeUnit;
 import org.eclipse.app4mc.amalthea.model.Frequency;
 import org.eclipse.app4mc.amalthea.model.FrequencyDomain;
 import org.eclipse.app4mc.amalthea.model.FrequencyUnit;
+import org.eclipse.app4mc.amalthea.model.HwConnection;
+import org.eclipse.app4mc.amalthea.model.HwModule;
 import org.eclipse.app4mc.amalthea.model.HwPort;
 import org.eclipse.app4mc.amalthea.model.HwStructure;
 import org.eclipse.app4mc.amalthea.model.Memory;
@@ -59,6 +61,16 @@ public class Hardware {
 		hwStructure.setStructureType(structureType);
 		hwStructure.getModules().add(ram);
 		hwStructure.getModules().addAll(cores);
+		// connect all cores to ram
+		HwModule assignedRam = hwStructure.getModules().get(0);
+		for (int i = 1; i < hwStructure.getModules().size(); i++) {
+			HwModule core = hwStructure.getModules().get(i);
+			HwConnection conn = factory.createHwConnection();
+			conn.setName("conn_" + (i - 1));
+			conn.setPort1(core.getPorts().get(0));
+			conn.setPort2(assignedRam.getPorts().get(0));
+			hwStructure.getConnections().add(conn);
+		}
 		parentHwStructure.getStructures().add(hwStructure);
 	}
 
