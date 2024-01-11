@@ -8,6 +8,7 @@ import org.eclipse.app4mc.amalthea.model.io.AmaltheaWriter;
 
 import app4mc.project.tool.java.Modules.ProjectSetup;
 import app4mc.project.tool.java.Modules.Hardware;
+import app4mc.project.tool.java.Modules.OperatingSystems;
 import app4mc.project.tool.java.Modules.Software;
 
 public class Main {
@@ -23,6 +24,7 @@ public class Main {
 		ProjectSetup.run(model, factory);
 		Hardware.run(model,  factory);
 		Software.run(model, factory);
+		OperatingSystems.run(model, factory);
 
 		// output the model to a file
 		if (AmaltheaWriter.writeToFile(model, outputFile)) {
