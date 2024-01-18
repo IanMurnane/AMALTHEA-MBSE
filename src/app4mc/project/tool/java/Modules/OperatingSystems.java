@@ -9,7 +9,7 @@ import org.eclipse.app4mc.amalthea.model.TaskScheduler;
 
 public class OperatingSystems {
 	public static void run(Amalthea model, AmaltheaFactory factory) {
-		int cores = 32;  // Infineon Tricore CPU has 32 cores
+		int cores = 3;  // Infineon Tricore CPU has 3 cores
 
 		// define scheduler parameters
 		SchedulingParameterDefinition param1 = factory.createSchedulingParameterDefinition();

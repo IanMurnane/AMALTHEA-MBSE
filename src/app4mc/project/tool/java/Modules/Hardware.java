@@ -26,25 +26,27 @@ import org.eclipse.app4mc.amalthea.model.StructureType;
 
 public class Hardware {
 	public static void run(Amalthea model, AmaltheaFactory factory) {
-		FrequencyDomain freq1_5 = addFrequencyDomain(model, factory, "1.5 GHz", 1.5);
+		FrequencyDomain freq300 = addFrequencyDomain(model, factory, "300 MHz", 0.3);
 		FrequencyDomain freq2_0 = addFrequencyDomain(model, factory, "2.0 GHz", 2.0);
 
 		ProcessingUnitDefinition puInfineonTricore = addProcessingUnitDefinition(model, factory, "Infineon TriCore CPU", PuType.CPU);
 		ProcessingUnitDefinition puNvidiaPascal = addProcessingUnitDefinition(model, factory, "Nvidia Pascal GPU", PuType.GPU);
 		ProcessingUnitDefinition puNvidiaParker = addProcessingUnitDefinition(model, factory, "Nvidia Parker SoC", PuType.CPU);
 
-		Memory ram12 = addMemoryDefinition(model, factory, "12GB GDDR5 RAM", 12, 256);
+		Memory rom8 = addROMDefinition(model, factory, "8MB FLASH ROM", 8, 32);
+		Memory ram4 = addMemoryDefinition(model, factory, "4GB GDDR5 RAM", 4, 256);
 		Memory ram16 = addMemoryDefinition(model, factory, "16GB GDDR5 RAM", 16, 32);
 		Memory ram32 = addMemoryDefinition(model, factory, "32GB DDR3 RAM", 32, 64);
 
 		// ECU - Tesla HW2.5 AP
 		HwStructure teslaHW25 = addHwStructure(model, factory, "Tesla HW2.5", StructureType.ECU);
-		List<ProcessingUnit> coresNvidiaParker = createCores(factory, puNvidiaParker, freq2_0, 256, 64);
-		attachHardware(factory, teslaHW25, "Nvidia Parker SoC", StructureType.SO_C, ram32, coresNvidiaParker);
-		List<ProcessingUnit> coresNvidiaPascal = createCores(factory, puNvidiaPascal, null, 256, 192);
-		attachHardware(factory, teslaHW25, "Nvidia Pascal GPU 1", StructureType.CLUSTER, ram12, coresNvidiaPascal);
-		List<ProcessingUnit> coresInfineonTricore = createCores(factory, puInfineonTricore, freq1_5, 32, 32);
-		attachHardware(factory, teslaHW25, "Infineon TriCore CPU", StructureType.MICROCONTROLLER, ram16, coresInfineonTricore);
+		List<ProcessingUnit> coresNvidiaParker = createCores(factory, puNvidiaParker, freq2_0, 256, 6);
+		attachHardware(factory, teslaHW25, "Nvidia Parker SoC 1", StructureType.SO_C, ram32, null, coresNvidiaParker);
+		attachHardware(factory, teslaHW25, "Nvidia Parker SoC 2", StructureType.SO_C, ram32, null, coresNvidiaParker);
+		List<ProcessingUnit> coresNvidiaPascal = createCores(factory, puNvidiaPascal, null, 128, 1280);
+		attachHardware(factory, teslaHW25, "Nvidia Pascal GPU (GTX 1060)", StructureType.CLUSTER, ram4, null, coresNvidiaPascal);
+		List<ProcessingUnit> coresInfineonTricore = createCores(factory, puInfineonTricore, freq300, 32, 3);
+		attachHardware(factory, teslaHW25, "Infineon TriCore CPU", StructureType.MICROCONTROLLER, ram16, rom8, coresInfineonTricore);
 	}
 
 	private static HwStructure addHwStructure(Amalthea model, AmaltheaFactory factory, String name, StructureType structureType) {
@@ -55,21 +57,35 @@ public class Hardware {
 		return hwStructure;
 	}
 
-	private static void attachHardware(AmaltheaFactory factory, HwStructure parentHwStructure, String name, StructureType structureType, Memory ram, List<ProcessingUnit> cores) {
+	private static void attachHardware(AmaltheaFactory factory, HwStructure parentHwStructure, String name, StructureType structureType, Memory ram, Memory rom, List<ProcessingUnit> cores) {
 		HwStructure hwStructure = factory.createHwStructure();
 		hwStructure.setName(name);
 		hwStructure.setStructureType(structureType);
 		hwStructure.getModules().add(ram);
+		if (rom != null) hwStructure.getModules().add(rom);
 		hwStructure.getModules().addAll(cores);
 		// connect all cores to ram
 		HwModule assignedRam = hwStructure.getModules().get(0);
-		for (int i = 1; i < hwStructure.getModules().size(); i++) {
+		boolean hasROM = rom != null;
+		int connectionCount = 0;
+		for (int i = hasROM ? 2 : 1; i < hwStructure.getModules().size(); i++) {
 			HwModule core = hwStructure.getModules().get(i);
 			HwConnection conn = factory.createHwConnection();
-			conn.setName("conn_" + (i - 1));
+			conn.setName("conn_" + connectionCount++);
 			conn.setPort1(core.getPorts().get(0));
 			conn.setPort2(assignedRam.getPorts().get(0));
 			hwStructure.getConnections().add(conn);
+		}
+		if (hasROM) {
+			HwModule assignedRom = hwStructure.getModules().get(1);
+			for (int i = 2; i < hwStructure.getModules().size(); i++) {
+				HwModule core = hwStructure.getModules().get(i);
+				HwConnection conn = factory.createHwConnection();
+				conn.setName("conn_" + connectionCount++);
+				conn.setPort1(core.getPorts().get(0));
+				conn.setPort2(assignedRom.getPorts().get(0));
+				hwStructure.getConnections().add(conn);
+			}
 		}
 		parentHwStructure.getStructures().add(hwStructure);
 	}
@@ -113,6 +129,28 @@ public class Hardware {
 		Memory mem = factory.createMemory();
 		mem.setDefinition(ram);
 		mem.setName("RAM");
+		HwPort hwPort = factory.createHwPort();
+		hwPort.setName("port");
+		hwPort.setPortType(PortType.RESPONDER);
+		hwPort.setBitWidth(bitWidth);
+		mem.getPorts().add(hwPort);
+		return mem;
+	}
+
+	private static Memory addROMDefinition(Amalthea model, AmaltheaFactory factory, String name, int size, int bitWidth) {
+		MemoryDefinition rom = factory.createMemoryDefinition();
+		DataSize dataSize = factory.createDataSize();
+		dataSize.setUnit(DataSizeUnit.MB);
+		dataSize.setValue(BigInteger.valueOf(size));
+		rom.setSize(dataSize);
+		rom.setName(name);
+		rom.setMemoryType(MemoryType.FLASH);
+		model.getHwModel().getDefinitions().add(rom);
+
+		// add a port and return as Memory
+		Memory mem = factory.createMemory();
+		mem.setDefinition(rom);
+		mem.setName("ROM");
 		HwPort hwPort = factory.createHwPort();
 		hwPort.setName("port");
 		hwPort.setPortType(PortType.RESPONDER);
