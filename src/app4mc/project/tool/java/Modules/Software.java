@@ -13,12 +13,14 @@ import org.eclipse.app4mc.amalthea.model.Amalthea;
 import org.eclipse.app4mc.amalthea.model.AmaltheaFactory;
 import org.eclipse.app4mc.amalthea.model.DataSize;
 import org.eclipse.app4mc.amalthea.model.DataSizeUnit;
+import org.eclipse.app4mc.amalthea.model.DiscreteValueWeibullEstimatorsDistribution;
 import org.eclipse.app4mc.amalthea.model.Group;
 import org.eclipse.app4mc.amalthea.model.Label;
 import org.eclipse.app4mc.amalthea.model.LabelAccess;
 import org.eclipse.app4mc.amalthea.model.LabelAccessEnum;
 import org.eclipse.app4mc.amalthea.model.ProcessingUnit;
 import org.eclipse.app4mc.amalthea.model.Task;
+import org.eclipse.app4mc.amalthea.model.Ticks;
 import org.eclipse.app4mc.amalthea.model.Runnable;
 import org.eclipse.app4mc.amalthea.model.RunnableCall;
 import org.eclipse.app4mc.amalthea.model.RunnableSequencingConstraint;
@@ -207,7 +209,7 @@ public class Software {
 		addLabelsToRunnables(model.getSwModel().getRunnables().get(6),model,factory,31,31,35,35,labelsOrdered);
 		addLabelsToRunnables(model.getSwModel().getRunnables().get(7),model,factory,31,31,36,36,labelsOrdered);
 		addLabelsToRunnables(model.getSwModel().getRunnables().get(8),model,factory,31,31,36,36,labelsOrdered);
-		addLabelsToRunnables(model.getSwModel().getRunnables().get(8),model,factory,36,36,37,37,labelsOrdered);
+		addLabelsToRunnables(model.getSwModel().getRunnables().get(8),model,factory,-100,-100,37,37,labelsOrdered);
 		addLabelsToRunnables(model.getSwModel().getRunnables().get(9),model,factory,31,31,38,38,labelsOrdered);
 		addLabelsToRunnables(model.getSwModel().getRunnables().get(10),model,factory,31,31,39,39,labelsOrdered);
 		
@@ -242,6 +244,15 @@ public class Software {
 				runnable.getActivityGraph().getItems().add(l);
 				
 			}
+
+			Ticks ticks = factory.createTicks();
+			DiscreteValueWeibullEstimatorsDistribution ticksInfo = factory.createDiscreteValueWeibullEstimatorsDistribution();
+			ticksInfo.setAverage(80000.0);
+			ticksInfo.setLowerBound((long) 72000);
+			ticksInfo.setPRemainPromille(0.5);
+			ticksInfo.setUpperBound((long) 88000);
+			ticks.setDefault(ticksInfo);
+			runnable.getActivityGraph().getItems().add(ticks);
 		}
 		
 			for(int i=startOut; i<=endOut; i++) {
