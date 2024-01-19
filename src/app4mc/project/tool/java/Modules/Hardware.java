@@ -31,7 +31,9 @@ public class Hardware {
 
 		ProcessingUnitDefinition puInfineonTricore = addProcessingUnitDefinition(model, factory, "Infineon TriCore CPU", PuType.CPU);
 		ProcessingUnitDefinition puNvidiaPascal = addProcessingUnitDefinition(model, factory, "Nvidia Pascal GPU", PuType.GPU);
-		ProcessingUnitDefinition puNvidiaParker = addProcessingUnitDefinition(model, factory, "Nvidia Parker SoC", PuType.CPU);
+		ProcessingUnitDefinition puNvidiaParker_A57 = addProcessingUnitDefinition(model, factory, "ARM Cortex-A57 CPU", PuType.CPU);
+		ProcessingUnitDefinition puNvidiaParker_D2 = addProcessingUnitDefinition(model, factory, "Denver 2 CPU", PuType.CPU);
+		ProcessingUnitDefinition puPascalGEFORCE_SoC = addProcessingUnitDefinition(model, factory, "Pascal GEFORCE 256 CUDA GPU", PuType.GPU);
 
 		Memory rom8 = addROMDefinition(model, factory, "8MB FLASH ROM", 8, 32);
 		Memory ram4 = addMemoryDefinition(model, factory, "4GB GDDR5 RAM", 4, 256);
@@ -39,21 +41,47 @@ public class Hardware {
 		Memory ram32 = addMemoryDefinition(model, factory, "32GB DDR3 RAM", 32, 64);
 
 		// ECU - Tesla HW2.5 AP
-		HwStructure teslaHW25 = addHwStructure(model, factory, "Tesla HW2.5", StructureType.ECU);
-		List<ProcessingUnit> coresNvidiaParker = createCores(factory, puNvidiaParker, freq2_0, 256, 6);
-		attachHardware(factory, teslaHW25, "Nvidia Parker SoC 1", StructureType.SO_C, ram32, null, coresNvidiaParker);
-		attachHardware(factory, teslaHW25, "Nvidia Parker SoC 2", StructureType.SO_C, ram32, null, coresNvidiaParker);
+		HwStructure teslaHW25 = addHwStructure(model, factory, "Tesla HW2.5", StructureType.ECU, null);
+		List<ProcessingUnit> coresNvidiaParker_A57 = createCores(factory, puNvidiaParker_A57, freq2_0, 256, 4);
+		List<ProcessingUnit> coresNvidiaParker_D2 = createCores(factory, puNvidiaParker_D2, freq2_0, 256, 2);
+		
+		List<ProcessingUnit> coresNvidiaParker_A57_2 = createCores(factory, puNvidiaParker_A57, freq2_0, 256, 4);
+		List<ProcessingUnit> coresNvidiaParker_D2_2 = createCores(factory, puNvidiaParker_D2, freq2_0, 256, 2);
+		
 		List<ProcessingUnit> coresNvidiaPascal = createCores(factory, puNvidiaPascal, null, 128, 1280);
 		attachHardware(factory, teslaHW25, "Nvidia Pascal GPU (GTX 1060)", StructureType.CLUSTER, ram4, null, coresNvidiaPascal);
 		List<ProcessingUnit> coresInfineonTricore = createCores(factory, puInfineonTricore, freq300, 32, 3);
 		attachHardware(factory, teslaHW25, "Infineon TriCore CPU", StructureType.MICROCONTROLLER, ram16, rom8, coresInfineonTricore);
+		
+		
+		HwStructure SoC1 = addHwStructure(model, factory, "Nvidia Parker SoC 1", StructureType.SO_C, teslaHW25);
+		HwStructure SoC2 = addHwStructure(model, factory, "Nvidia Parker SoC 2", StructureType.SO_C, teslaHW25);
+		
+		attachHardware(factory, SoC1, "ARM Cortex-A57", StructureType.MICROCONTROLLER, ram32, null, coresNvidiaParker_A57);
+		attachHardware(factory, SoC1, "Denver 2", StructureType.MICROCONTROLLER, ram32, null, coresNvidiaParker_D2);
+		
+		attachHardware(factory, SoC2, "ARM Cortex-A57", StructureType.MICROCONTROLLER, ram32, null, coresNvidiaParker_A57_2);
+		attachHardware(factory, SoC2, "Denver 2", StructureType.MICROCONTROLLER, ram32, null, coresNvidiaParker_D2_2);
+	
+		List<ProcessingUnit> coresPascalGEFORCE_SoC1 = createCores(factory, puPascalGEFORCE_SoC, null, 128, 256);
+		attachHardware(factory, SoC1, "Nvidia Pascal GEFORCE GPU (256 CUDA)", StructureType.CLUSTER, ram4, null, coresPascalGEFORCE_SoC1);
+		
+		List<ProcessingUnit> coresPascalGEFORCE_SoC2 = createCores(factory, puPascalGEFORCE_SoC, null, 128, 256);
+		attachHardware(factory, SoC2, "Nvidia Pascal GEFORCE GPU (256 CUDA)", StructureType.CLUSTER, ram4, null, coresPascalGEFORCE_SoC2);
+		
 	}
 
-	private static HwStructure addHwStructure(Amalthea model, AmaltheaFactory factory, String name, StructureType structureType) {
+	private static HwStructure addHwStructure(Amalthea model, AmaltheaFactory factory, String name, StructureType structureType, HwStructure parentHW) {
 		HwStructure hwStructure = factory.createHwStructure();
 		hwStructure.setName(name);
 		hwStructure.setStructureType(structureType);
-		model.getHwModel().getStructures().add(hwStructure);
+		
+		if(parentHW != null) {
+			model.getHwModel().getStructures().get(0).getStructures().add(hwStructure);
+		}
+		else {
+			model.getHwModel().getStructures().add(hwStructure);
+		}
 		return hwStructure;
 	}
 
@@ -64,6 +92,7 @@ public class Hardware {
 		hwStructure.getModules().add(ram);
 		if (rom != null) hwStructure.getModules().add(rom);
 		hwStructure.getModules().addAll(cores);
+		
 		// connect all cores to ram
 		HwModule assignedRam = hwStructure.getModules().get(0);
 		boolean hasROM = rom != null;
@@ -88,6 +117,7 @@ public class Hardware {
 			}
 		}
 		parentHwStructure.getStructures().add(hwStructure);
+		
 	}
 
 	private static ProcessingUnitDefinition addProcessingUnitDefinition(Amalthea model, AmaltheaFactory factory, String name, PuType puType) {
