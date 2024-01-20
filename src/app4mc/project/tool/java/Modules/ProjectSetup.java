@@ -3,6 +3,7 @@ package app4mc.project.tool.java.Modules;
 import org.eclipse.app4mc.amalthea.model.Amalthea;
 import org.eclipse.app4mc.amalthea.model.AmaltheaFactory;
 import org.eclipse.app4mc.amalthea.model.HWModel;
+import org.eclipse.app4mc.amalthea.model.MappingModel;
 import org.eclipse.app4mc.amalthea.model.OSModel;
 import org.eclipse.app4mc.amalthea.model.SWModel;
 import org.eclipse.app4mc.amalthea.model.StimuliModel;
@@ -23,5 +24,8 @@ public class ProjectSetup {
 
 		StimuliModel st = factory.createStimuliModel();
 		model.setStimuliModel(st);
+		
+		MappingModel mp = factory.createMappingModel();
+		model.setMappingModel(mp);
 	}
 }
