@@ -2,6 +2,7 @@ package app4mc.project.tool.java.Modules;
 
 import org.eclipse.app4mc.amalthea.model.Amalthea;
 import org.eclipse.app4mc.amalthea.model.AmaltheaFactory;
+import org.eclipse.app4mc.amalthea.model.EventModel;
 import org.eclipse.app4mc.amalthea.model.HWModel;
 import org.eclipse.app4mc.amalthea.model.MappingModel;
 import org.eclipse.app4mc.amalthea.model.OSModel;
@@ -27,5 +28,8 @@ public class ProjectSetup {
 		
 		MappingModel mp = factory.createMappingModel();
 		model.setMappingModel(mp);
+		
+		 EventModel ev = factory.createEventModel();
+		model.setEventModel(ev);
 	}
 }

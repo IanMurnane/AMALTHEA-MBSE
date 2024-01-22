@@ -14,6 +14,7 @@ import org.eclipse.app4mc.amalthea.model.AmaltheaFactory;
 import org.eclipse.app4mc.amalthea.model.DataSize;
 import org.eclipse.app4mc.amalthea.model.DataSizeUnit;
 import org.eclipse.app4mc.amalthea.model.DiscreteValueWeibullEstimatorsDistribution;
+import org.eclipse.app4mc.amalthea.model.EventStimulus;
 import org.eclipse.app4mc.amalthea.model.Group;
 import org.eclipse.app4mc.amalthea.model.Label;
 import org.eclipse.app4mc.amalthea.model.LabelAccess;
@@ -21,9 +22,12 @@ import org.eclipse.app4mc.amalthea.model.LabelAccessEnum;
 import org.eclipse.app4mc.amalthea.model.ProcessingUnit;
 import org.eclipse.app4mc.amalthea.model.Task;
 import org.eclipse.app4mc.amalthea.model.Ticks;
+import org.eclipse.emf.common.util.BasicEList;
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.app4mc.amalthea.model.Runnable;
 import org.eclipse.app4mc.amalthea.model.RunnableCall;
 import org.eclipse.app4mc.amalthea.model.RunnableSequencingConstraint;
+import org.eclipse.app4mc.amalthea.model.Stimulus;
 
 public class Software {
 	public static void run(Amalthea model, AmaltheaFactory factory) {
@@ -86,7 +90,8 @@ public class Software {
 		
 		addLabels(model, factory, labelSizeMap);
 		List<String> tasks =new ArrayList<>();
-		tasks.add("SensorFusion");
+		tasks.add("SensorFusion_Periodic");
+		tasks.add("SensorFusion_APeriodic");
 		tasks.add("ForwardCollisionWarning");
 		tasks.add("AutonomousEmergencyBraking");
 		tasks.add("AdaptiveCruiseControl");
@@ -142,25 +147,30 @@ public class Software {
 		
 		addRunnableCall(model,factory,0,0);
 		addRunnableCall(model,factory,1,0);
-		addRunnableCall(model,factory,2,0);
-		addRunnableCall(model,factory,3,0);
+		addRunnableCall(model,factory,2,1);
+		addRunnableCall(model,factory,3,1);
 		addRunnableCall(model,factory,4,0);
-		addRunnableCall(model,factory,5,0);
+		addRunnableCall(model,factory,5,1);
 		
-		addRunnableCall(model,factory,6,1);
 		addRunnableCall(model,factory,6,2);
+		addRunnableCall(model,factory,6,3);
 		
-		addRunnableCall(model,factory,7,3);
-		addRunnableCall(model,factory,8,3);
+		addRunnableCall(model,factory,7,4);
+		addRunnableCall(model,factory,8,4);
 		
-		addRunnableCall(model,factory,9,4);
-		addRunnableCall(model,factory,10,5);
+		addRunnableCall(model,factory,9,5);
+		addRunnableCall(model,factory,10,6);
 		
-		addRunnableCall(model,factory,11,6);
-		addRunnableCall(model,factory,12,6);
-		addRunnableCall(model,factory,13,6);
-		addRunnableCall(model,factory,14,6);
-		addRunnableCall(model,factory,15,6);
+		addRunnableCall(model,factory,11,7);
+		addRunnableCall(model,factory,12,7);
+		addRunnableCall(model,factory,13,7);
+		addRunnableCall(model,factory,14,7);
+		addRunnableCall(model,factory,15,7);
+		
+		//add stimuli to periodic tasks
+		EList<Stimulus> stimuli = model.getStimuliModel().getStimuli();
+		model.getSwModel().getTasks().get(0).getStimuli().add(stimuli.get(0));
+		model.getSwModel().getTasks().get(4).getStimuli().add(stimuli.get(1));
 		
 	
 	}
@@ -174,7 +184,7 @@ public class Software {
 		runnables.add("InertialMeasurementUnit");
 		runnables.add("SensorFusionAlgorithm");
 		
-		runnables.add("CollisonDetection");
+		runnables.add("CollisionDetection");
 	
 		runnables.add("TargetVehicleDetection");
 		runnables.add("DistanceCalculation");

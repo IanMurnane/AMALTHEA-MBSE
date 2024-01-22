@@ -7,6 +7,7 @@ import org.eclipse.app4mc.amalthea.model.AmaltheaFactory;
 import org.eclipse.app4mc.amalthea.model.io.AmaltheaWriter;
 
 import app4mc.project.tool.java.Modules.ProjectSetup;
+import app4mc.project.tool.java.Modules.Events;
 import app4mc.project.tool.java.Modules.Hardware;
 import app4mc.project.tool.java.Modules.Mapping;
 import app4mc.project.tool.java.Modules.OperatingSystems;
@@ -25,10 +26,11 @@ public class Main {
 		// add modules here
 		ProjectSetup.run(model, factory);
 		Hardware.run(model,  factory);
+		Stimuli.run(model, factory);
 		Software.run(model, factory);
 		OperatingSystems.run(model, factory);
-		Stimuli.run(model, factory);
 		Mapping.run(model, factory);
+		Events.run(model, factory);
 
 		// output the model to a file
 		if (AmaltheaWriter.writeToFile(model, outputFile)) {
