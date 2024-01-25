@@ -53,7 +53,8 @@ public class Mapping {
 				//System.out.println(hwS);
 				executingCPU1 = hwS;
 				responsibiliyCPU1.add(hwS);
-				String name = "TriCore_Scheduler_" + hwS.getName();
+				int lastIndex = hwS.getName().indexOf("_C");
+				String name = "TriCore_Scheduler" + hwS.getName().substring(lastIndex);
 				t_core = getScheduler(taskScheduler, name);
 				addSchedulerAllocation(model,factory,executingCPU1,responsibiliyCPU1,t_core);
 				responsibiliyCPU1.clear();
@@ -74,7 +75,8 @@ public class Mapping {
 				//System.out.println(hwS);
 				executingCPU2 = hwS;
 				responsibiliyCPU2.add(hwS);
-				String name = "ARM_Cortex_A57_SoC1_Scheduler_" + hwS.getName();
+				int lastIndex = hwS.getName().indexOf("_C");
+				String name = "ARM_Cortex_A57_SoC1_Scheduler" + hwS.getName().substring(lastIndex);
 				t_core = getScheduler(taskScheduler, name);
 				addSchedulerAllocation(model,factory,executingCPU2,responsibiliyCPU2,t_core);
 				responsibiliyCPU2.clear();
@@ -91,7 +93,8 @@ public class Mapping {
 				//System.out.println(hwS);
 				executingCPU2 = hwS;
 				responsibiliyCPU2.add(hwS);
-				String name = "Denver2_SoC1_Scheduler_" + hwS.getName();
+				int lastIndex = hwS.getName().indexOf("_C");
+				String name = "Denver2_SoC1_Scheduler" + hwS.getName().substring(lastIndex);
 				t_core = getScheduler(taskScheduler, name);
 				addSchedulerAllocation(model,factory,executingCPU2,responsibiliyCPU2,t_core);
 				responsibiliyCPU2.clear();
@@ -111,7 +114,8 @@ public class Mapping {
 				//System.out.println(hwS);
 				executingCPU3 = hwS;
 				responsibiliyCPU3.add(hwS);
-				String name = "ARM_Cortex_A57_SoC2_Scheduler_" + hwS.getName();
+				int lastIndex = hwS.getName().indexOf("_C");
+				String name = "ARM_Cortex_A57_SoC2_Scheduler" + hwS.getName().substring(lastIndex);
 				t_core = getScheduler(taskScheduler, name);
 				addSchedulerAllocation(model,factory,executingCPU3,responsibiliyCPU3,t_core);
 				responsibiliyCPU3.clear();
@@ -128,7 +132,8 @@ public class Mapping {
 				//System.out.println(hwS);
 				executingCPU3 = hwS;
 				responsibiliyCPU3.add(hwS);
-				String name = "Denver2_SoC2_Scheduler_" + hwS.getName();
+				int lastIndex = hwS.getName().indexOf("_C");
+				String name = "Denver2_SoC2_Scheduler" + hwS.getName().substring(lastIndex);
 				t_core = getScheduler(taskScheduler, name);
 				addSchedulerAllocation(model,factory,executingCPU3,responsibiliyCPU3,t_core);
 				responsibiliyCPU3.clear();
