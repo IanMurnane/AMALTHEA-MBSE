@@ -20,8 +20,8 @@ public class Events {
 		addEvents(model, factory, 9, "Lane_Departure_Detected");
 		addEvents(model, factory, 10, "Vehicle_In_Blind_Spot_Detected");
 
-		addEvents(model, factory, 11, "CD_Algorithm_Updated");
-		addEvents(model, factory, 12, "CD_Algorithm_Updated2");
+		addEvents(model, factory, 11, "CD_Algorithm_Updated_FCW");
+		addEvents(model, factory, 12, "CD_Algorithm_Updated_AEB");
 		addEvents(model, factory, 13, "ACC_Algorithm_Updated");
 		addEvents(model, factory, 14, "LDW_Algorithm_Updated");
 		addEvents(model, factory, 15, "BSD_Algorithm_Updated");
